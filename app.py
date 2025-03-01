@@ -7,22 +7,6 @@ from gender import Gender
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# structure of user
-user = {
-    'email': str,
-    'gender': Gender,
-    'country': str,
-    'school': bool,
-}
-
-# structure of session 
-session = {
-    'topic': str,
-    'time': int,
-    'app': str,
-    'status': bool,
-}
-
 users = [
     {
         "user-id": 1,
@@ -70,11 +54,6 @@ sessions = [
         "status": False
     }
 ]
-
-@app.route("/")
-def hello():
-    return "Hello World!"
-
 # user config endpoint - post
 # anthony 
 # make a local array to temp store things 
@@ -102,21 +81,39 @@ def add_user():
 
 # register callback endpoint - post 
 # jason
-@app.route("/registercallback")
-def temp():
-    return "Hello World!"
+@app.route("/registercallback", methods=["POST"])
+def register_callback():
+    return jsonify({"message": "Callback registered"}), 200
 
 # startSession endpoint - post
 # jason
+# instantiate a new session object, set it to true, making sure its the only true 
 @app.route("/start")
 def start_session():
-    return temp
+    global sessions
+    data = request.json
+    topic = data.get("topic")
+
+    session = next((s for s in sessions if s["topic"] == topic), None)
+    if not session:
+        return jsonify({"error": "Session not found"}), 404
+
+    active_session = get_active_session()
+    if active_session:
+        return jsonify({"error": f"Another session ('{active_session['topic']}') is already active"}), 400
+
+    session["status"] = True
+    return jsonify({"message": f"Session '{topic}' started"}), 20
+
+# help function to ensure a session is the only one set to true -> singleton instance 
+def get_active_session():
+    return next((session for session in sessions if session["status"]), None)
 
 # endSession endpoint - post
 # anthony 
 # update data and turn status into False
 # return that session 
-@app.route("/end", methods = ['POST']) 
+@app.route("/end", methods = ['UPDATE'])
 def end_session():
     app = request.json['app']
     user_id = request.json['user-id']
