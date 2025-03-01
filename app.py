@@ -33,17 +33,17 @@ users = [
 
 sessions = [
     {
-        'user-id': 1,
-        'topic': 'CPSC 121',
-        'time': 50,
-        'app': "SmartPomodoro",
-        'status': False
+        "user-id": 1,
+        "topic": 'CPSC 121',
+        "time": 50,
+        "app": "SmartPomodoro",
+        "status": False
     },
     {
-        'user-id': 2,
-        'topic': 'DSCI 100',
-        'time': 20,
-        'app': "SmartPomodoro",
+        "user-id": 2,
+        "topic": 'DSCI 100',
+        "time": 20,
+        "app": "SmartPomodoro",
         "status": True,
     },
     {
@@ -54,12 +54,13 @@ sessions = [
         "status": False
     }
 ]
+
 # user config endpoint - post
 # anthony 
 # make a local array to temp store things 
 # we want this endpoint to be able to add new users and their info to this local array 
 # we want to return, the full list of users 
-@app.route("/userconfig", methods = ['POST'])
+@app.route("/create_user", methods = ['POST'])
 def add_user():
     email = request.json['email']
     gender = request.json['gender']
@@ -85,35 +86,35 @@ def add_user():
 def register_callback():
     return jsonify({"message": "Callback registered"}), 200
 
-# startSession endpoint - post
+# todo
+# create_session endpoint - post
 # jason
-# instantiate a new session object, set it to true, making sure its the only true 
-@app.route("/start")
+# pass in a session object
+@app.route("/create_session")
+def create_session():
+    return True
+
+# todo
+# start_session endpoint - update
+# jason
+# pass in an id, set status to True 
+@app.route("/start_session")
 def start_session():
-    global sessions
-    data = request.json
-    topic = data.get("topic")
+    return True
 
-    session = next((s for s in sessions if s["topic"] == topic), None)
-    if not session:
-        return jsonify({"error": "Session not found"}), 404
+# todo
+# delete_session endpoint - DELETE 
+# anthony 
+# pass in an id, check if it exists, then remove it 
+@app.route("/delete_session")
+def delete_session():
+    return True
 
-    active_session = get_active_session()
-    if active_session:
-        return jsonify({"error": f"Another session ('{active_session['topic']}') is already active"}), 400
-
-    session["status"] = True
-    return jsonify({"message": f"Session '{topic}' started"}), 20
-
-# help function to ensure a session is the only one set to true -> singleton instance 
-def get_active_session():
-    return next((session for session in sessions if session["status"]), None)
-
-# endSession endpoint - post
+# end_session endpoint - post
 # anthony 
 # update data and turn status into False
 # return that session 
-@app.route("/end", methods = ['UPDATE'])
+@app.route("/end_session", methods = ['UPDATE'])
 def end_session():
     app = request.json['app']
     user_id = request.json['user-id']
@@ -126,7 +127,7 @@ def end_session():
                 return "Error: session is not active."
     return "Error: no session found."
 
-# currentSession endpoint - get 
+# get_current_session endpoint - get 
 # anthony 
 # make a temp session array/json structure where we store all the sessions 
 # return the session that is currently active 
