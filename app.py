@@ -25,18 +25,21 @@ session = {
 
 users = [
     {
+        "user-id": 1,
         "email": "12345678@gmail.com",
         "gender": Gender.FEMALE.name,
         "country": "Andorra",
         "school": "University of Andorra"
     },
     {
+        "user-id": 2,
         "email": "anemail@gmail.com",
         "gender": Gender.MALE.name,
         "country": "Japan",
         "school": "University of Tokyo" 
     },
     {
+        "user-id": 3,
         "email": "anotheremail@hotmail.com",
         "gender": Gender.MALE.name,
         "country": "Australia",
@@ -46,18 +49,21 @@ users = [
 
 sessions = [
     {
+        'user-id': 1,
         'topic': 'CPSC 121',
         'time': 50,
         'app': "SmartPomodoro",
         'status': False
     },
     {
+        'user-id': 2,
         'topic': 'DSCI 100',
         'time': 20,
         'app': "SmartPomodoro",
         "status": True,
     },
     {
+        'user-id': 2,
         'topic': "Afternoon nap",
         'time': 90,
         "app": "SmartAlarm",
@@ -80,14 +86,19 @@ def add_user():
     gender = request.json['gender']
     country = request.json['country']
     school = request.json['school']
+    if (len(users) == 0):
+        user_id = 1
+    else:
+        user_id = users[-1]['user-id'] + 1
     newUser = {
+        "user-id": user_id,
         "email": email,
         "gender": gender,
         "country": country,
         "school": school
     }
     users.append(newUser)
-    return users
+    return jsonify(users)
 
 # register callback endpoint - post 
 # jason
@@ -98,8 +109,8 @@ def temp():
 # startSession endpoint - post
 # jason
 @app.route("/start")
-def temp2():
-    return "Hello World!"
+def start_session():
+    return temp
 
 # endSession endpoint - post
 # anthony 
@@ -107,8 +118,16 @@ def temp2():
 # return that session 
 @app.route("/end", methods = ['POST']) 
 def end_session():
-
-    return "Hello World!"
+    app = request.json['app']
+    user_id = request.json['user-id']
+    for session in sessions:
+        if user_id == session['user-id'] and app == session['app']:
+            if session['status']:
+                session['status'] = False
+                return jsonify(session)
+            else:
+                return "Error: session is not active."
+    return "Error: no session found."
 
 # currentSession endpoint - get 
 # anthony 
@@ -118,7 +137,7 @@ def end_session():
 def get_current_session():
     for session in sessions:
         if session['status']:
-            return session
+            return jsonify(session)
     return "No active sessions!"
 
 if __name__ == '__main__':
